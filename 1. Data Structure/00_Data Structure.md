@@ -1,5 +1,9 @@
 # 자료구조
 
+[참고 블로그](https://gmlwjd9405.github.io/2018/08/12/data-structure-tree.html) - 트리 부분
+
+[참고 블로그](https://gmlwjd9405.github.io/2018/08/13/data-structure-graph.html) - 그래프 부분
+
 ### 목차
 
 - [자료구조](#자료구조)
