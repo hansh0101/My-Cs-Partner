@@ -7,6 +7,7 @@
     - [목차](#목차)
     - [운영체제(Operating System)란?](#운영체제operating-system란)
     - [컴퓨터 시스템의 구조](#컴퓨터-시스템의-구조)
+    - [프로세스](#프로세스)
 
 ### 운영체제(Operating System)란?
 
@@ -97,3 +98,176 @@
     - Interrupt가 발생했을 때만 운영체제가 CPU를 갖게 된다.
 - 시스템 콜(System Call)
     - 사용자 프로그램이 운영체제의 서비스를 받기 위해 커널 함수를 호출하는 것
+- 동기식 입출력과 비동기식 입출력
+    
+    ![image](image/Synchronous-Asynchronous.png)
+    
+    - 동기식 입출력(synchronous IO)
+        - IO 요청 후 입출력 작업이 완료된 후에야 제어가 사용자 프로그램에 넘어감
+        - 만일 오래 걸리는 작업을 기다리는 동안 CPU를 가지고 있다면 CPU는 아무 일도 하지 않은 채 낭비가 되는 상황이 발생할 수 있다. → CPU를 다른 프로그램에 양보하는 것이 더 효율적이다.
+        - 구현 방법 1
+            - IO가 끝날 때까지 CPU를 대기시킴(낭비시킴)
+            - 매 시점 하나의 IO만 일어날 수 있음
+        - 구현 방법 2
+            - IO가 완료될 때까지 해당 프로그램에게서 CPU를 빼앗음
+            - IO 처리를 기다리는 줄에 그 프로그램을 추가함
+            - 다른 프로그램에게 CPU를 줌
+    - 비동기식 입출력(asynchronous IO)
+        - IO가 시작된 후 입출력 작업이 끝나기를 기다리지 않고 제어가 사용자 프로그램에 즉시 넘어감
+    - 두 경우 모두 IO의 완료는 인터럽트로 알려준다.
+- DMA(Direct Memory Access)
+    - 원래는 메모리에 접근할 수 있는 장치는 CPU 뿐이지만, DMA도 메모리에 접근할 수 있다.
+    - 빠른 입출력 장치를 메모리에 가까운 속도로 처리하기 위해 사용한다.
+    - CPU의 개입 없이 device 컨트롤러가 device의 buffer storage의 내용을 메모리에 block 단위로 직접 전송한다.
+    - 바이트 단위가 아니라 block 단위로 인터럽트를 발생시킨다.
+- 저장장치 계층 구조
+    
+    ![image](image/Storage-Structure.png)
+    
+    - (전통적으로) 위로 올라갈수록 속도는 빠르고, 비용은 비싸 용량이 적어지며, 휘발성이다.
+    - Primary - CPU가 직접 접근 가능(바이트 단위 접근이 가능)
+    - Secondary - CPU가 직접 접근 불가능(바이트 단위 접근이 불가능)
+    - 캐싱: 데이터를 더 빠른 저장장치로 복사하는 것
+- 프로그램의 실행(메모리 로드)
+    
+    ![image](image/Execution-Of-Program.png)
+    
+    - 메모리의 낭비를 막기 위해 당장 실행할 부분만 가상 메모리에서 물리 메모리로 올려 사용한다.
+    - 당장 실행하지 않는 부분은 swap area에 위치시키고, 필요 시 swap시킬 수 있도록 한다.
+    - 커널 역시 하나의 프로그램이기 때문에 스택, 데이터, 코드의 구조를 갖는다.
+    - 커널 주소 공간의 내용
+        - 코드
+            - 시스템 콜, 인터럽트 처리 코드
+            - 자원 관리를 위한 코드
+            - 편리한 서비스 제공을 위한 코드
+        - 데이터
+            - 운영체제가 관리하는 하드웨어의 종류마다 매칭되는 자료 구조
+            - 각 프로세스마다 운영체제가 관리하고 있는 자료 구조(PCB)
+        - 스택
+            - 각 프로세스의 커널 스택
+- 사용자 프로그램이 사용하는 함수
+    - 함수
+        - 사용자 정의 함수 → 프로세스의 Address space 내 코드에 위치
+            - 자신의 프로그램에서 정의한 함수
+        - 라이브러리 함수 → 프로세스의 Address space 내 코드에 위치
+            - 자신의 프로그램에서 정의하지 않고 갖다 쓴 함수
+            - 자신의 프로그램의 실행 파일에 포함되어 있다.
+        - 커널 함수 → 커널의 Address space 내 코드에 위치
+            - 운영체제 프로그램의 함수
+            - 커널 함수의 호출 = 시스템 콜
+
+### 프로세스
+
+- 프로세스: 실행 중인 프로그램
+- 프로세스의 문맥(context) - 이 프로세스는 현재 시점에 어디까지 와 있는가(수행했는가)
+    - CPU 수행 상태를 나타내는 하드웨어 문맥
+        - Program Counter
+        - 각종 register
+    - 프로세스의 주소 공간
+        - code, data, stack
+    - 프로세스 관련 커널 자료 구조
+        - PCB, 커널 스택
+    - 프로세스의 문맥이 왜 중요한가? → Time sharing 과정에서, 이 프로세스가 다음 번에 CPU를 할당받았을 때 어디서부터 이어서 작업을 수행해야 하는지 알 수 있기 때문
+- 프로세스의 상태(State)
+    
+    ![Image](image/Process-State-1.png)
+    
+    - 프로세스는 상태가 변경되면서 수행된다.
+        - Running
+            - CPU를 할당받아 instruction을 수행 중인 상태
+        - Ready
+            - CPU를 기다리는 상태(메모리 등 다른 조건을 모두 만족하고, CPU를 할당받기만을 기다리는 상태)
+        - Blocked(Wait, Sleep)
+            - CPU를 할당받아도 지금 당장 instruction을 수행할 수 없는 상태
+            - 프로세스 자신이 요청한 event(ex - IO)가 즉시 만족되지 않아 이를 기다리는 상태
+        - New
+            - 프로세스가 생성 중인 상태
+        - Terminated
+            - 수행(execution)이 끝난 상태
+    
+    ![Image](image/Process-State-2.png)
+    
+    - 프로세스는 Ready queue에서 대기하다가 CPU를 할당받아 Running 상태가 된다.
+    - CPU를 할당받고 작업을 수행하던 중 IO 작업이나 공유 데이터 접근 등 Block되는 상태가 발생하면 Blocked 상태로 변한다.
+    - IO 작업이 끝난 프로세스는 Ready queue로 되돌아가 CPU 할당을 기다리게 된다.
+- PCB(Process Control Block)
+    
+    ![Image](image/PCB.png)
+    
+    - 운영체제가 각 프로세스를 관리하기 위해 프로세스당 유지하는 정보
+    - 다음 구성 요소를 가진다.(구조체로 유지)
+        - OS가 관리하기 위해 사용하는 정보
+            - Process state, Process ID(PID)
+            - Scheduling information, priority(ready queue 내에서의 우선순위)
+        - CPU 수행 관련 하드웨어 값
+            - Program Counter, registers
+        - 메모리 관련
+            - Code, Data, Stack의 위치 정보
+        - 파일 관련
+            - Open file descriptor 등
+- 문맥 교환(Context Switch)
+    
+    ![Image](image/Context-Switch.png)
+    
+    - CPU를 한 프로세스에서 다른 프로세스로 넘겨주는 과정
+    - CPU가 다른 프로세스에게 넘어갈 때 운영체제는 다음을 수행한다.
+        - CPU를 내어주는 프로세스의 상태를 그 프로세스의 PCB에 저장
+        - CPU를 새롭게 얻는 프로세스의 상태를 PCB에서 읽어옴
+    - 시스템 콜이나 인터럽트 발생 시 반드시 context switch가 일어나는 것은 아니다.
+        - 시스템 콜이나 인터럽트가 발생하더라도 CPU가 다른 프로세스로 넘어가지 않고 기존의 프로세스가 그대로 할당받아 사용한다면, context switch가 일어나지 않는다.
+        - 비록 위 경우일지라도, CPU의 수행 정보 등 context의 일부를 PCB에 저장해야 하지만 다른 프로세스로 CPU를 넘기는 경우가 부담이 더 크다. (ex - 캐시 메모리 flush)
+- 프로세스를 스케줄링하기 위한 큐
+    
+    ![Image](image/Process-Scheduling-Queue.png)
+    
+    - Job queue
+        - 현재 시스템 내에 있는 모든 프로세스의 집합
+    - Ready queue
+        - 현재 메모리 내에 있으면서 CPU를 잡아서 실행되기를 기다리는 프로세스의 집합
+    - Device queue
+        - IO device의 처리를 기다리는 프로세스의 집합
+    - 프로세스들은 각 큐들을 오가며 수행된다.
+- 스케줄러
+    - Long-term scheduler(장기 스케줄러 or Job scheduler)
+        - 시작 프로세스 중 어떤 것들을 ready queue로 보낼지 결정(new → ready)
+        - 프로세스에 memory(및 각종 자원)을 주는 문제
+        - degree of Multiprogramming(메모리에 올라간 프로그램의 수)을 제어
+        - time sharing system에는 보통 장기 스케줄러가 없음(new 상태가 끝나자마자 바로 ready 상태가 되기 때문)
+    - Short-term scheduler(단기 스케줄러 or CPU scheduler)
+        - 어떤 프로세스를 다음번에 running 시킬지 결정(ready → running)
+        - 프로세스에 CPU를 주는 문제
+        - 충분히 빨라야 함(millisecond 단위)
+    - Medium-term scheduler(중기 스케줄러 or Swapper)
+        - 여유 공간 마련을 위해 프로세스를 통째로 메모리에서 디스크로 쫓아냄(ready → suspended)
+        - 프로세스에게서 메모리를 뺏는 문제
+        - degree of Multiprogramming(메모리에 올라간 프로그램의 수)을 제어
+        - 추가) 프로세스의 상태 중 Suspended(Stopped)란?
+            - 외부적인 이유로 프로세스의 수행이 정지된 상태
+            - 프로세스는 통째로 디스크에 swap out(쫓겨남)된다.
+            - 사용자가 프로그램을 일시 정지 시킨 경우 or 시스템이 여러 이유로 프로세스를 잠시 중단시킨 경우
+                - 외부에서 resume해주어야 active
+- 스레드
+    - 프로세스 내부에 CPU 수행 단위가 여러 개 있는 경우, 그것을 스레드 라고 부른다.
+    - CPU 수행을 별도로 하기 때문에, 스레드는 별도의 스택을 가진다.
+    - 스레드의 구성
+        - Program Counter
+        - Register set
+        - Stack space
+    - 스레드가 다른 스레드와 공유하는 부분(=task)
+        - code section
+        - data section
+        - OS resource
+    - 전통적인 개념의 heavy-weight process는 하나의 스레드를 가지고 있는 task로 볼 수 있다.
+    - 프로세스를 여러 개 두는 것보다, 여러 스레드를 두는 것이 효율적이기 때문에 light-weight thread라고도 부른다.
+        
+        ![Image](image/Process-vs-Thread.png)
+        
+    - 스레드를 사용해서 얻을 수 있는 장점
+        - 응답성
+            - 한 스레드가 blocked 상태인 동안에도 다른 스레드는 running 상태에 들어가 실행되어 빠른 응답을 얻을 수 있다.
+        - 자원 공유
+            - 여러 스레드는 프로세스의 코드 영역, 데이터 영역, 그리고 자원을 공유할 수 있다.
+        - 효율성
+            - 프로세스를 생성하고 CPU를 넘겨주는 것보다 스레드를 생성하고 CPU를 넘겨주는 것이 더 효율적이다.
+        - 병렬성
+            - 멀티코어 환경(CPU가 여럿인 환경)에서는 각각의 스레드가 병렬적으로 실행될 수 있다.
