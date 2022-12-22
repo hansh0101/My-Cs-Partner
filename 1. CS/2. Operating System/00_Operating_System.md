@@ -768,13 +768,3 @@
                 ![Image](image/Dining-Philosopher-Problem-Monitor.png)
                 
             - 짝수 번째 철학자는 왼쪽 젓가락부터, 홀수 번째 철학자는 오른쪽 젓가락부터 집도록 한다.
-- 데드락과 Starvation
-    - 데드락
-        - 둘 이상의 프로세스가 서로 상대방에 의해 충족될 수 있는 이벤트를 무한히 기다리는 현상
-        - S와 Q가 1로 초기화된 세마포어라 하자.
-            
-            ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/a18e3963-4b36-48ba-bab2-121bfa758f62/Untitled.png)
-            
-    - Starvation
-        - Indefinite blocking
-            - 프로세스가 suspend된 이유에 해당하는 세마포어 큐에서 빠져나갈 수 없는 현상
