@@ -1086,3 +1086,47 @@
         - page table을 사용하여 logical address를 physical address로 변환
         - external fragmentation 발생 안 함
         - internal fragmentation 발생 가능
+        
+        ![Untitled](image/Page-Table.png)
+        
+        ![p는 page, d는 offset, f는 frame을 의미한다.](image/Page-Table-2.png)
+        
+        p는 page, d는 offset, f는 frame을 의미한다.
+        
+    - Page Table의 구현
+        - page table은 메인 메모리에 상주
+        - Page-Table Base Register(PTBR)가 page table을 가리킴
+        - Page-Table Length Register(PTLR)가 테이블 크기를 보관
+        - 모든 메모리 접근 연산에는 2번의 memory access가 필요
+            - page table 접근을 위해 1번, 실제 data/instruction 접근 1번
+        - 속도 향상을 위해 associative register 혹은 translation look-aside buffer(TLB)라 불리는 고속의 lookup hardware cache 사용
+        
+        ![Untitled](image/TLB.png)
+        
+    - Associative registers(TLB)
+        - parallel search가 가능하며, TLB에는 page table 중 일부만 존재한다.
+        - Address translation
+            - page table 중 일부가 associative register에 보관되어 있음
+            - 만약 해당 page #가 associative register에 있는 경우 곧바로 frame #를 얻음
+            - 그렇지 않은 경우 메인 메모리에 있는 page table로부터 frame #를 얻음
+            - TLB는 context switch 때 flush(remove old entries)
+    - Effective Access Time
+        - Associative register lookup time을 ε, memory cycle time을 1, hit ratio를 α라 하면
+        Effective Access Time(EAT)는
+        EAT = (1 + ε) * α + (2 + ε) * (1 - α) = 2 + ε - α
+    - Two-Level Page Table
+        - 현대의 컴퓨터는 address space가 매우 큰 프로그램을 지원
+            - 32bit address 사용 시: 2^32B(4G)의 주소 공간
+                - page size가 4K일 때, 1M개의 page table entry 필요
+                - 각 page entry가 4B일 때, 프로세스 당 4M의 page table 필요
+                - 그러나, 대부분의 프로그램은 4G의 주소 공간 중 지극히 일부분만 사용하므로 page table 공간이 심하게 낭비됨
+            - page table 자체를 page로 구성하고, 사용되지 않는 주소 공간에 대한 outer page table의 엔트리 값은 NULL(대응하는 inner page table이 없음)
+        - Logical address(on 32bit machine with 4K page size)의 구성
+            - 20bit의 page number, 12bit의 page offset
+        - page table 자체가 page로 구성되기 때문에 page number는 다음과 같이 나뉜다(각 page table entry가 4B).
+            - 10bit의 page number, 10bit의 page offset
+        - 따라서, logical address는 다음과 같다.
+            
+            ![Untitled](image/Two-Level-Page-Table.png)
+            
+            - P1은 outer page table의 index이고, P2는 outer page table의 page에서의 변위(displacement)
