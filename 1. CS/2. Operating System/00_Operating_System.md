@@ -1130,3 +1130,82 @@
             ![Untitled](image/Two-Level-Page-Table.png)
             
             - P1은 outer page table의 index이고, P2는 outer page table의 page에서의 변위(displacement)
+  - Multilevel Paging
+    - Address space가 더 커지면 다단계 페이지 테이블 필요
+    - 각 단계의 페이지 테이블이 메모리에 존재하므로 logical address의 physical address 변환에 더 많은 메모리 접근 필요
+    - TLB를 통해 메모리 접근 시간을 줄일 수 있음
+    - 4단계 페이지 테이블을 사용하는 경우,
+        - 메모리 접근 시간이 100ns, TLB 접근 시간이 20ns이고 TLB hit ratio가 98%인 경우
+        effective memory access time = 0.98 * 120 + 0.02 * 520 = 128(ns)
+        - 결과적으로 주소 변환을 위해 28ns만 소요
+- Memory Protection
+    - page table의 각 entry마다 아래의 bit를 둔다.
+        - Protection bit
+            - page에 대한 접근 권한(read/write/read-only)
+        - Valid-invalid bit
+            - valid는 해당 주소의 frame에 그 프로세스를 구성하는 유효한 내용이 있음을 뜻함(접근 허용)
+            - invalid는 해당 주소의 frame에 유효한 내용이 없음(해당 페이지가 메모리에 올라와 있지 않고 swap area에 있는 경우)을 뜻함(접근 불허)
+- Inverted Page Table
+    - page table이 매우 큰 이유
+        - 모든 process별로 그 logical address에 대응하는 모든 page에 대해 page table entry가 존재
+        - 대응하는 page가 메모리에 있든 아니든 간에 page table에는 entry로 존재
+    - Inverted page table
+        - Page frame 하나당 page table에 하나의 entry를 둔 것(system-wide)
+        - 각 page table entry는 각각의 물리적 메모리의 page frame이 담고 있는 표시(process-id, process의 logical address)
+        - 단점
+            - 테이블 전체를 탐색해야 함
+        - 조치
+            - associative register 사용(expensive)
+    
+    ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/4214a429-5540-4047-9f75-8c4cbde53ce1/Untitled.png)
+    
+- Shared Page
+    - Shared code
+        - Re-entrant Code(재진입 가능 코드, Pure Code)라고도 함
+        - read-only로 하여 프로세스 간에 하나의 code만 메모리에 올림
+        - Shared code는 모든 프로세스의 logical address space에서 동일한 위치에 있어야 함
+            - 이유: Address binding 시 일치해야 하기 때문
+    - Private code and data
+        - 각 프로세스들은 독자적으로 메모리에 올림
+        - Private data는 logical address space의 아무 곳에 와도 무방
+- Segmentation
+    - 프로그램은 의미 단위인 여러 개의 segment로 구성
+        - 작게는 프로그램을 구성하는 함수 하나하나를 세그먼트로 정의
+        - 크게는 프로그램 전체를 하나의 세그먼트로 정의 가능
+        - 일반적으로는 code, data, stack 부분이 하나씩의 세그먼트로 정의됨
+    - Segment는 다음과 같은 logical unit들임
+        - main()
+        - function
+        - global variables
+        - stack
+        - symbol table, arrays
+- Segmentation Architecture
+    - Logical address는 다음의 두 가지로 구성된다
+        - <segment-number, offset>
+    - Segment table
+        - 각각의 table entry는 base(세그먼트의 물리적 시작 주소)와 limit(세그먼트의 길이)를 가짐
+    - Segment-table base register(STBR)
+        - 물리적 메모리에서의 segment table의 위치
+    - Segment-table length register(STLR)
+        - 프로그램이 사용하는 segment의 수
+            - segment number s는 s < STLR이다
+        
+        ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/3a115223-34e1-4533-ad50-e9ad9f4d5ea0/Untitled.png)
+        
+    - Protection
+        - 각 세그먼트 별로 protection bit가 있음
+        - 각각의 entry에는 valid bit, read/write/execution 권한 bit가 있는데 valid bit이 0이면 illegal segment이다.
+    - Sharing
+        - Shared segment
+        - Shared segment number
+        - segment는 의미 단위이기 때문에 공유(sharing)와 보안(protection)에 있어 paging보다 훨씬 효과적이다
+    - Allocation
+        - first fit/best fit
+        - external fragmentation 발생
+        - segment의 길이가 동일하지 않으므로 가변 분할 방식에서와 동일한 문제점들이 발생
+- Segmentation with Paging
+    - segment가 여러 page로 쪼개져 메모리 상에 올라가는 기법
+    - pure segmentation과의 차이점
+        - segment-table entry가 segment의 base address를 가지고 있는 것이 아니라 segment를 구성하는 page table의 base address를 가지고 있음
+    
+    ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/5da8c261-1d7b-456e-aa94-891942b5e392/Untitled.png)
